@@ -145,10 +145,53 @@
 		</div>
 		<button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
 	</form:form>
+<button onclick="payWithMetaMask()" class="btn btn-primary btn-lg btn-block">Pay with MetaMask</button>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+<script th:inline="javascript">
+	async function payWithMetaMask() {
+		// Check if MetaMask is available
+		if (window.ethereum) {
+			try {
+				// Request user's approval to connect to MetaMask
+				await window.ethereum.enable();
+
+				// Get the user's Ethereum account
+				const accounts = await ethereum.request({ method: 'eth_accounts' });
+				const account = accounts[0];
+
+				// Get the current Ether price in USD
+				const etherPriceInUSD = 3000; // This is just an example value
+
+				// Calculate the amount of Ether to send (10 USD)
+				const etherAmount = 10 / etherPriceInUSD;
+
+				// Convert etherAmount to BigInt in wei (1 Ether = 10^18 wei)
+				const etherAmountInWei = BigInt(Math.floor(etherAmount * 1e18));
+
+				// Send the Ether to the specified address
+				const transactionParameters = {
+					to: '0x6162355A7Ff886964B6ad19a57991A9F0433778E',
+					value: `0x${etherAmountInWei.toString(16)}`, // Convert the decimal amount to hexadecimal
+				};
+
+				// Send the transaction
+				const txHash = await ethereum.request({
+					method: 'eth_sendTransaction',
+					params: [transactionParameters],
+				});
+
+				console.log(`Transaction sent: ${txHash}`);
+			} catch (error) {
+				console.error(`Error sending transaction: ${error.message}`);
+			}
+		} else {
+			console.error('MetaMask not detected');
+		}
+	}
+</script>
 <script th:inline="javascript">
 	window.onload = function () {
 
